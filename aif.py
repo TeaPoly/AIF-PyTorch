@@ -10,6 +10,12 @@ from attention import DotProductAttention
 
 
 class AIF(torch.nn.Module):
+    """Auto-regressive Integrate-and-Fire (AIF).
+
+    LABEL-SYNCHRONOUS NEURAL TRANSDUCER FOR END-TO-END ASR
+    https://arxiv.org/pdf/2307.03088.pdf
+    """
+
     def __init__(
         self,
         encoder_dim,
@@ -28,11 +34,7 @@ class AIF(torch.nn.Module):
         ys,
         ys_lens,
     ):
-        """Auto-regressive Integrate-and-Fire (AIF).
-
-        LABEL-SYNCHRONOUS NEURAL TRANSDUCER FOR END-TO-END ASR
-        https://arxiv.org/pdf/2307.03088.pdf
-
+        """
         Args:
             xs (torch.Tensor): Acoustic encoder output, size
                 (B, T, D').
@@ -43,7 +45,6 @@ class AIF(torch.nn.Module):
 
         Returns:
             torch.Tensor: Transformed value (B, V, D)
-
         """
 
         # B,T,1
