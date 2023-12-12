@@ -23,8 +23,7 @@ class AIF(torch.nn.Module):
     ):
         super().__init__()
 
-        self.output = torch.nn.Linear(encoder_dim, 1)
-        self.proj = torch.nn.Linear(encoder_dim, predictor_dim)
+        self.proj = torch.nn.Linear(encoder_dim-1, predictor_dim)
         self.att = DotProductAttention()
 
     def forward(
@@ -46,9 +45,10 @@ class AIF(torch.nn.Module):
         Returns:
             torch.Tensor: Transformed value (B, V, D)
         """
-
         # B,T,1
-        alphas = torch.sigmoid(self.output(xs))
+        # employs a simple method to find the weight αt by applying a sigmoid 
+        # function to the last element et,d of each encoder output frame 
+        alphas = torch.sigmoid(xs[:,:,-1].unsqueeze(-1))
 
         encoder_mask = ~make_pad_mask(xs_lens).unsqueeze(1)  # (B, 1, T)
         alphas = alphas * encoder_mask.transpose(-1, -2).type_as(alphas)
@@ -61,7 +61,8 @@ class AIF(torch.nn.Module):
 
         mask, csum = create_aif_mask(alphas, ys_lens, encoder_mask)
 
-        xs_proj = self.proj(xs)
+        # mapped to the same dimension as ys
+        xs_proj = self.proj(xs[:,:,:-1])
 
         acoustic_embeds = self.att(
             ys,
