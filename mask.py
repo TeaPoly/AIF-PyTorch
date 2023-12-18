@@ -74,9 +74,6 @@ def create_aif_mask(
     v_range = torch.arange(V).view(1, -1, 1).to(alphas.device)
     mask = csum.unsqueeze(1) <= v_range+1
 
-    m = ~make_pad_mask(ys_lens).unsqueeze(-1)  # (B, V, 1)
-    mask = mask & m
-
     if encoder_mask is not None:
         mask = mask & encoder_mask
 
